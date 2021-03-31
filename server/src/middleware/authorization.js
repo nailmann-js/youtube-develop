@@ -10,16 +10,16 @@ export async function getAuthUser(req, res, next) {
     }
 
     const token = req.headers.authorization;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await prisma.user.findUnique({
-            where: {
-                id: decoded.id
-            },
-            include: {
-                videos: true
-            }
-        });
+    const user = await prisma.user.findUnique({
+        where: {
+            id: decoded.id
+        },
+        include: {
+            videos: true
+        }
+    });
         
     req.user = user;
     next();
