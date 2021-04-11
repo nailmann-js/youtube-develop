@@ -1,5 +1,5 @@
 import express from "express";
-import {PrismaClient} from 'express';
+import {PrismaClient} from '@prisma/client';
 import {getAuthUser, protect} from '../middleware/authorization';
 import { getVideoViews } from "./video";
 
@@ -33,7 +33,7 @@ async function getVideos(model, req, res) {
     }
   })
   
-  const videoIds = videoLikes.map(videoLike => videoLike.videoId);
+  const videoIds = videoRelations.map((videoLike) => videoLike.videoId);
   
   let videos = await prisma.video.findMany({
     where: {
@@ -44,7 +44,7 @@ async function getVideos(model, req, res) {
     include: {
       user: true
     }
-  })
+  });
   
   if (!videos.length) {
     return res.status(200).json({ videos})
@@ -57,12 +57,10 @@ async function getVideos(model, req, res) {
 
 async function getLikedVideos(req, res) {
   await getVideos(prisma.videoLike, req, res)
- // 23 6.01 check request
 }
 
 async function getHistory(req, res) {
   await getVideos(prisma.view, req, res);
-  // 24 3.20 check request
 }
 
 async function toggleSubscribe(req, res, next) {
@@ -92,7 +90,7 @@ async function toggleSubscribe(req, res, next) {
       subscriberId: {
         equals: req.user.id
       },
-      subscriberToId: {
+      subscribedToId: {
         equals: req.params.userId
       }
     }
@@ -112,7 +110,7 @@ async function toggleSubscribe(req, res, next) {
             id: req.user.id
           }
         },
-        subscriberTo: {
+        subscribedTo: {
           connect: {
             id: req.params.userId
           }
@@ -121,7 +119,6 @@ async function toggleSubscribe(req, res, next) {
     })
   }
 
-  // check this req 25 5.30
   res.status(200).json({});
 }
 
@@ -158,7 +155,6 @@ async function getFeed(req, res) {
 
   res.status(200).json({feed: feedVideos});
 
-  // 26 3.30
 }
 
 async function searchUser(req, res, next) {
@@ -178,14 +174,14 @@ async function searchUser(req, res, next) {
     }
   });
 
-  if (!user.length) {
+  if (!users.length) {
     return res.status(200).json({users})
   };
 
   for (const user of users) {
     const subscribersCount = await prisma.subscription.count({
       where: {
-        subscriberToId: {
+        subscribedToId: {
           equals: user.id
         }
       }
@@ -209,7 +205,7 @@ async function searchUser(req, res, next) {
             subscriberId: {
               equals: req.user.id
             },
-            subscriberToId: {
+            subscribedToId: {
               equals: user.id
             }
           }
@@ -225,7 +221,6 @@ async function searchUser(req, res, next) {
 
   return res.status(200).json({users});
 
-  // 27 5.37
 }
 
 async function getRecommendedChannels(req, res) {
@@ -245,7 +240,7 @@ async function getRecommendedChannels(req, res) {
   for (const channel of channels) {
     const subscribersCount = await prisma.subscription.count({
       where: {
-        subscriberToId: {
+        subscribedToId: {
           equals: channel.id
         }
       }
@@ -263,7 +258,7 @@ async function getRecommendedChannels(req, res) {
             subscriberId: {
               equals: req.user.id
             },
-            subscriberToId: {
+            subscribedToId: {
               equals: channel.id
             }
           }
@@ -274,7 +269,7 @@ async function getRecommendedChannels(req, res) {
     channel.videosCount = videosCount;
     channel.isSubscribed = Boolean(isSubscribed);
   }
-  // 28 3.25
+
   return res.status(200).json({channels})
 }
 
@@ -294,7 +289,7 @@ async function getProfile(req, res, next) {
 
   const subscribersCount = await prisma.subscription.count({
       where: {
-        subscriberToId: {
+        subscribedToId: {
           equals: user.id
         }
       }
@@ -312,7 +307,7 @@ async function getProfile(req, res, next) {
           subscriberId: {
             equals: req.user.id
           },
-          subscriberToId: {
+          subscribedToId: {
             equals: user.id
           }
         }
@@ -333,7 +328,7 @@ async function getProfile(req, res, next) {
   const channels = await prisma.user.findMany({
     where: {
       id: {
-        id: subscriptions
+        in: subscriptions
       }
     }
   });
@@ -341,7 +336,7 @@ async function getProfile(req, res, next) {
   for (const channel of channels) {
     const subscribersCount = await prisma.subscription.count({
       where: {
-        subscriberToId: {
+        subscribedToId: {
           equals: channel.id
         }
       }
@@ -374,7 +369,6 @@ async function getProfile(req, res, next) {
   user.videos = await getVideoViews(videos);
 
   return res.status(200).json({user});
-  // 29 6.30
 }
 
 async function editUser(req, res) {
@@ -388,7 +382,7 @@ async function editUser(req, res) {
       username, cover, avatar, about
     }
   });
-  // 1.30
+  
   res.status(200).json({user});
 }
 
