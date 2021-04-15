@@ -2,6 +2,10 @@ import express, { response } from "express";
 import {PrismaClient} from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import {protect} from "../middleware/authorization";
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
 const prisma = new PrismaClient();
 
 function getAuthRoutes() {
@@ -16,7 +20,13 @@ function getAuthRoutes() {
 
 // All controllers/utility functions here
 async function googleLogin(req, res) {
-  const {username, email} = req.body;
+  const { idToken } = req.body;
+  const ticket = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID
+  });
+
+  const { name, picture, email } = ticket.getPayload();
 
   let user = await prisma.user.findUnique({
     where: {
@@ -26,9 +36,9 @@ async function googleLogin(req, res) {
   if (!user) {
     user = await prisma.user.create({
       data:{
-        username, 
         email,
-        avatar: ""
+        username: name,
+        avatar: picture
       }
     })
   }
@@ -42,9 +52,28 @@ async function googleLogin(req, res) {
 }
 
 async function me(req, res) {
-  console.log(req.user);
+  const subscriptions = await prisma.subscription.findMany({
+    where: {
+      subscriberId: {
+        equals: req.user.id
+      }
+    }
+  });
+  
+  const channelIds = subscriptions.map(sub => sub.subscribedToId);
 
-  res.status(200).json({user: req.user});
+  const channels = await prisma.user.findMany({
+    where: {
+      id: {
+        in: channelIds
+      }
+    }
+  });
+
+  const user = req.user;
+  user.channels = channels;
+
+  res.status(200).json({user});
 }
 
 function signout(req, res) {

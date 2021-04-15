@@ -52,12 +52,9 @@ const Wrapper = styled.div`
 
   @media screen and (max-width: 1093px) {
     transform: translateX(-100%);
-
     ${(props) =>
-      props.open &&
-      css`
-        transform: translateX(0);
-      `}
+      props.open && css`transform: translateX(0);`
+    }
   }
 `;
 export default Wrapper;
