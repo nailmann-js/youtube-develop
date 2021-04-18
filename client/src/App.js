@@ -41,7 +41,6 @@ function App() {
         <Route path="/feed/my_videos" component={YourVideos} />
         <Route path="/feed/liked_videos" component={LikedVideos} />
         <Route path="#" component={NotFound} />
-        {/* 35 */}
       </Switch>
     </Container>
   </>;

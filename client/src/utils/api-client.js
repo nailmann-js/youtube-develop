@@ -1,3 +1,4 @@
+import { queryCache } from 'react-query';
 import axios from 'axios';
 
 export const client = axios.create({
@@ -19,7 +20,10 @@ export function authenticate(response) {
     });
 }
 
-export async function signoutUser() {}
+export async function signoutUser() {
+    await client.get('/auth/signout');
+    window.location.pathname = '/';
+}
 
 export async function updateUser() {}
 
@@ -27,7 +31,10 @@ export async function addVideoView() {}
 
 export async function addComment() {}
 
-export async function addVideo() {}
+export async function addVideo(video) {
+    await client.post('/videos', video);
+    await queryCache.invalidateQueries('Channel');
+}
 
 export async function subscribeUser() {}
 
