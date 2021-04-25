@@ -5,7 +5,7 @@ import SignUpCard from "../components/SignUpCard";
 import Wrapper from "../styles/Home";
 import VideoGrid from "../styles/VideoGrid";
 
-function Subscriptions() {
+function Subscriptions({ user }) {
   const isAuth = false;
 
   if (!isAuth) {
