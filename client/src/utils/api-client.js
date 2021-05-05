@@ -25,7 +25,10 @@ export async function signoutUser() {
     window.location.pathname = '/';
 }
 
-export async function updateUser() {}
+export async function updateUser(user) {
+    await client.put('/users', user);
+    await queryCache.invalidateQueries("Channel");
+}
 
 export async function addVideoView(videoId) {
     await client.get(`/videos/${videoId}/view`);
@@ -66,6 +69,12 @@ export async function dislikeVideo(videoId) {
     await queryCache.invalidateQueries(["WatchVideo", videoId]);
 }
 
-export async function deleteVideo() {}
+export async function deleteVideo(videoId) {
+    await client.delete(`/videos/${videoId}`);
+    await queryCache.invalidateQueries("Channel");
+}
 
-export async function deleteComment() {}
+export async function deleteComment(comment) {
+    await client.delete(`/videos/${comment.videoId}/comments/${comment.id}`);
+    await queryCache.invalidateQueries("WatchVideo");
+}

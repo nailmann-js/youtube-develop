@@ -5,6 +5,7 @@ import { client } from "../utils/api-client";
 import Skeleton from "../skeletons/TrendingSkeleton";
 import ErrorMessage from "../components/ErrorMessage";
 import TrendingCard from "../components/TrendingCard";
+import { Link } from "react-router-dom";
 
 function TrendingPage() {
   const {data: videos, isLoading, isError, isSuccess, error} = useQuery("TrendingVideos", () => client
@@ -21,7 +22,9 @@ function TrendingPage() {
 
       <div className="trending">
         {isSuccess ? videos.map(video => (
+        <Link key={video.id} to={`/watch/${video.id}`}>
           <TrendingCard key={video.id} video={video} />
+        </Link>
         )) : null}
       </div>
     </Wrapper>

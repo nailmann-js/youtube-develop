@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from "react";
 import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CommentList from "../components/AddComment";
 import { DislikeIcon, LikeIcon } from "../components/Icons";
 import NoResults from "../components/NoResults";
@@ -81,17 +81,21 @@ function WatchVideoPage() {
         <div className="channel-info-description">
           <div className="channel-info-flex">
             <div className="channel-info flex-row">
-              <img
-                className="avatar md"
-                src={video.user.avatar}
-                alt={`${video.user.username} channel avatar`}
-              />
-              <div className="channel-info-meta">
-                <h4>{video.user.username}</h4>
-                <span className="secondary small">
-                  {video.subscribersCount} subscribers
-                </span>
-              </div>
+              <Link to={`/channel/${video.user.id}`}>
+                <img
+                  className="avatar md"
+                  src={video.user.avatar}
+                  alt={`${video.user.username} channel avatar`}
+                  />
+              </Link>
+                <div className="channel-info-meta">
+                  <Link to={`/channel/${video.user.id}`}>
+                    <h4>{video.user.username}</h4>
+                  </Link>
+                  <span className="secondary small">
+                    {video.subscribersCount} subscribers
+                  </span>
+                </div>
             </div>
 
             {!video.isVideoMine && !video.isSubscribed &&

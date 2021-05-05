@@ -32,7 +32,7 @@ function App() {
       <Switch>
         <Route exact path='/' component={Home} />
         <Route path="/watch/:videoId" component={WatchVideoPage} />
-        <Route path="channel/:channelId" component={Channel} />
+        <Route path="/channel/:channelId" component={Channel} />
         <Route path="/results/:searchQuery" component={SearchResults} />
         <Route path="/feed/trending" component={TrendingPage} />
         <Route path="/feed/subscriptions" component={Subscriptions} />
