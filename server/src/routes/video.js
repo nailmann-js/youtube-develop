@@ -531,6 +531,57 @@ async function getVideo(req, res, next) {
     video.subscribersCount = subscribersCount;
 
     res.status(200).json({video});
+  } else {
+    
+    const likesCount = await prisma.videoLike.count({
+      where: {
+        AND: {
+          videoId: {
+            equals: req.params.videoId
+          },
+          like: {
+            equals: 1
+          }
+        }
+      }
+    });
+
+    const dislikesCount = await prisma.videoLike.count({
+      where: {
+        AND: {
+          videoId: {
+            equals: req.params.videoId
+          },
+          like: {
+            equals: -1
+          }
+        }
+      }
+    });
+
+    const views = await prisma.view.count({
+      where: {
+        videoId: {
+          equals: video.id
+        }
+      }
+    });
+
+    const subscribersCount = await prisma.subscription.count({
+      where: {
+        subscribedToId: {
+          equals: video.userId
+        }
+      }
+    })
+
+    video.commentsCount = video.comments.length;
+    video.likesCount = likesCount;
+    video.dislikesCount = dislikesCount;
+    video.views = views;
+    video.subscribersCount = subscribersCount;
+
+    res.status(200).json({video});
   }
 
 }
